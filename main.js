@@ -1,10 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, GatewayIntentBits, Collection, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, Collection } = require('discord.js');
 require('dotenv').config()
-require('csv-parser');
-require('csv-writer');
-//const csv = require('./data_read_write');
 
 const client = new Client({ 
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
@@ -27,7 +24,6 @@ for (const file of eventFiles) {
 	}
 }
 
-
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -48,17 +44,3 @@ for (const folder of commandFolders) {
 }
 
 client.login(process.env.token);
-
-const getClient = () =>{
-  return client;
-}
-
-exports.getClient = getClient;
-
-//let data = csv_rw.readData('user_reviews.csv');
-//console.log(data)
-// file = csv_rw.sortRating(
-// 	'allergen free halal chicken thigh',
-// 	'user_reviews.csv', false
-// );
-//console.log(file)
