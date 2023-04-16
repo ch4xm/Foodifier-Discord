@@ -37,5 +37,5 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('Get a list of reviews from the spec'))
+                .setDescription('Get a list of reviews from the specified user or '))
 }
