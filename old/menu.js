@@ -42,7 +42,7 @@ async function get_site_with_cookie(url, location_url) {
         'WebInaCartRecipes': ''
     };
     
-    return axios.get(url, { 
+    return await axios.get(url, { 
         headers: {
             'Cookie': Object.entries(cookies).map(c => c.join('=')).join('; ')
         }
@@ -54,12 +54,11 @@ async function get_site_with_cookie(url, location_url) {
     });
 }
 
-async function getMeal(college, full_url) {
+async function getMenu(college, full_url) {
     let food_items = {};
-    let date_string = '';
-
-    let response = await get_site_with_cookie(full_url, location_url)
-    const DOM = new JSDOM(response);
+    let location_url = LOCATION_URLS[college];
+    let response = await get_site_with_cookie(full_url, location_url);
+    const dom = new JSDOM(response);
 
     dom.window.document.querySelectorAll('tr').forEach((tr) => {
 		if (tr.querySelector('div.longmenucolmenucat')) {
@@ -87,12 +86,21 @@ async function getMeal(college, full_url) {
 }
 
 async function getDiningHallMenu(college, meal, day_offset = 0) {
-    const offsetDate = new Date((new Date()).getTime() + diff * 60000);
+    const offsetDate = new Date((new Date()).getTime() + day_offset * 60000);
     date = `&dtdate=${offsetDate.getMonth() + 1}%2F${offsetDate.getDate()}%2F${offsetDate.getFullYear().toString().substr(-2)}`;
-    
-    const food_items = await getMeal(college, full_url)
+	let full_url = BASE_URL + LOCATION_URLS[college] + MEAL_URL + meal + date;
+
+    const food_items = await getMenu(college, full_url);
+    return food_items;
 }
 
 async function getCafeMenu(cafe) {
 
+}
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('menu')
+        .setDescription('Get the menu of the specified day at a dining hall')
+        .addSubcommand(input)
 }
