@@ -43,6 +43,5 @@ test/*.js
 out/*.js
 *.map
 
-**.js
 .env1
 node_modules
