@@ -1,6 +1,7 @@
 package.json
 package-lock.json
 .env
+<<<<<<< HEAD
 
 # Logs
 logs
@@ -45,3 +46,7 @@ out/*.js
 *.map
 
 **.js
+=======
+.env1
+node_modules
+>>>>>>> main
