@@ -2,21 +2,24 @@
 // Seperate file cause we don't need to sync commands every time bot starts up
 // Credits to discord.js docs
 
-const { REST, Routes } = require('discord.js');
-require('dotenv').config();
-const fs = require('node:fs');
-const path = require('node:path');
+import {REST, RESTPutAPIApplicationCommandsResult, Routes} from 'discord.js';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
-const commands = [];
+
+dotenv.config();
+
+let commands : string[] = [];
 // Grab all the command files from the commands directory you created earlier
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+let foldersPath : string = path.join(__dirname, 'commands');
+let commandFolders : string[] = fs.readdirSync(foldersPath);
 
 
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	const commandFiles : string[] = fs.readdirSync(commandsPath).filter((file:string) => file.endsWith('.js'));
 
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
@@ -26,7 +29,7 @@ for (const folder of commandFolders) {
 }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST({ version: '10' }).setToken(process.env.token);
+let rest = new REST({ version: '10' }).setToken(process.env.token!);
 
 // and deploy your commands!
 (async () => {
@@ -34,10 +37,10 @@ const rest = new REST({ version: '10' }).setToken(process.env.token);
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
-		const data = await rest.put(
-			Routes.applicationCommands(process.env.clientId),
+		let data = await rest.put(
+			Routes.applicationCommands(process.env.clientId!),
 			{ body: commands },
-		);
+		) as RESTPutAPIApplicationCommandsResult;
 
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	}
