@@ -102,5 +102,19 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('menu')
         .setDescription('Get the menu of the specified day at a dining hall')
-        .addSubcommand(input)
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('cafe')
+                .setDescription('Get the menu of one of the UCSC cafes')
+                .addStringOption(option =>
+                    option.setName('location')
+                    .setDescription('Which cafe to get the menu of')
+                    .setRequired(true)
+                )
+        ).addSubcommand(subcommand =>
+            subcommand
+                .setName('dining_hall')
+                .setDescription('Get the menu of one of the UCSC dining halls')
+                )
+
 }
