@@ -63,5 +63,4 @@ for (const folder of commandFolders) {
 	}
 }
 
-console.log(process.env.token);
 client.login(process.env.token);
