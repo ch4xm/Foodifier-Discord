@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "module": "Node16",
+        "outDir": "out",
+        "strict": true,
+        "target": "ES2022"
+    }
+}
