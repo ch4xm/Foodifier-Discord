@@ -1,6 +1,6 @@
 const BASE_URL = "https://nutrition.sa.ucsc.edu/longmenu.aspx?sName=UC+Santa+Cruz+Dining&locationNum=";
 
-const LOCATION_URLS = {
+const LOCATION_URLS : Record<string,string> = {
     'Cowell/Stevenson': "05&locationName=Cowell%2fStevenson+Dining+Hall&naFlag=1",
 	'Crown/Merrill': "20&locationName=Crown%2fMerrill+Dining+Hall&naFlag=1",
 	'Nine/Ten': "40&locationName=College+Nine%2fJohn+R.+Lewis+Dining+Hall&naFlag=1",
@@ -27,12 +27,15 @@ const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees -
 
 const EMOJIS = { 'veggie': '🥦', 'vegan': '🌱', 'halal': '🍖', 'eggs': '🥚', 'beef': '🐮', 'milk': '🥛', 'fish': '🐟', 'alcohol': '🍷', 'gluten': '🍞', 'soy': '🫘', 'treenut': '🥥', 'sesame': '', 'pork': '🐷', 'shellfish': '🦐', 'nuts': '🥜' };
 
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const JSDOM = require('jsdom').JSDOM;
-const fs = require('fs');
-const axios = require('axios');
+import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
-async function get_site_with_cookie(url, location_url) {
+import JSDOM from 'jsdom';
+
+JSDOM.JSDOM;
+import fs from 'fs';
+import axios from 'axios';
+
+async function get_site_with_cookie(url : string, location_url : string){
     let location_cookie = location_url.slice(0,2);
     const cookies = {
         'WebInaCartLocation': location_cookie,
@@ -54,13 +57,13 @@ async function get_site_with_cookie(url, location_url) {
     });
 }
 
-async function getMenu(college, full_url) {
-    let food_items = {};
-    let location_url = LOCATION_URLS[college];
+async function getMenu(college : string, full_url : string) {
+    let food_items  : Record<any,any > = {};
+    let location_url : string = LOCATION_URLS[college];
     let response = await get_site_with_cookie(full_url, location_url);
     const dom = new JSDOM(response);
 
-    dom.window.document.querySelectorAll('tr').forEach((tr) => {
+    dom.window.document.querySelectorAll('tr').forEach((tr : any) => {
 		if (tr.querySelector('div.longmenucolmenucat')) {
 			// If current tr has a divider
 			//console.log(tr.querySelector('div.longmenucolmenucat'));
@@ -74,7 +77,11 @@ async function getMenu(college, full_url) {
 			for (let img of tr.querySelectorAll('img')) {
 				// Iterate through dietary restrictions and get img src names
 				let diets = img.getAttribute('src').split('/')[1].split('.')[0];
-				food_items[food].push(diets);
+        if (food_items[food] == null) {
+          continue;
+        } else{
+				  food_items[food].push(diets);
+        }
 			}
 		}
   })
@@ -85,18 +92,18 @@ async function getMenu(college, full_url) {
   return food_items;
 }
 
-async function getDiningHallMenu(college, meal, day_offset = 0) {
+async function getDiningHallMenu(college : string, meal : string, day_offset = 0) {
     const offsetDate = new Date((new Date()).getTime() + day_offset * 60000);
-    date = `&dtdate=${offsetDate.getMonth() + 1}%2F${offsetDate.getDate()}%2F${offsetDate.getFullYear().toString().substr(-2)}`;
-	let full_url = BASE_URL + LOCATION_URLS[college] + MEAL_URL + meal + date;
+    let date : string = `&dtdate=${offsetDate.getMonth() + 1}%2F${offsetDate.getDate()}%2F${offsetDate.getFullYear().toString().substr(-2)}`;
+	  let full_url : string = BASE_URL + LOCATION_URLS[college] + MEAL_URL + meal + date;
 
     const food_items = await getMenu(college, full_url);
     return food_items;
 }
 
-async function getCafeMenu(cafe) {
-
-}
+// async function getCafeMenu(cafe) {
+//
+// }
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -130,7 +137,7 @@ module.exports = {
                 )
         ),
 
-        async execute(interaction) {
+        async execute(interaction : ChatInputCommandInteraction) {
             await getDiningHallMenu('Cowell/Stevenson', 'Lunch')
             await interaction.reply('hi');
             console.log(`User ${interaction.user.tag} used command ${interaction}`);
