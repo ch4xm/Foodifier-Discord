@@ -3,6 +3,9 @@
         "module": "Node16",
         "outDir": "out",
         "strict": true,
-        "target": "ES2022"
-    }
+        "target": "ES2022",
+    },
+    "exclude": [
+        "not_working",
+    ],
 }
