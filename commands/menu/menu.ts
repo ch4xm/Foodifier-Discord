@@ -116,6 +116,7 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('location')
                     .setDescription('Which cafe to get the menu of')
+                    .addChoices(...Object.keys(CAFE_URLS).map(name => ({name, value: name})))
                     .setRequired(true)
                 )
         ).addSubcommand(subcommand =>
@@ -125,6 +126,7 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('location')
                     .setDescription('Which dining hall to get the menu of')
+                    .addChoices(...Object.keys(LOCATION_URLS).map(name => ({name, value: name})))
                     .setRequired(true))
                 .addStringOption(option =>
                     option.setName('meal')
