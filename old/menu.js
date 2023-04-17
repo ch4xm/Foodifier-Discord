@@ -115,6 +115,23 @@ module.exports = {
             subcommand
                 .setName('dining_hall')
                 .setDescription('Get the menu of one of the UCSC dining halls')
+                .addStringOption(option =>
+                    option.setName('location')
+                    .setDescription('Which dining hall to get the menu of')
+                    .setRequired(true))
+                .addStringOption(option =>
+                    option.setName('meal')
+                    .setDescription('Which meal (note that not all meals will be available for every location')
+                    .setRequired(true))
+                .addStringOption(option =>
+                    option.setName('day_offset')
+                    .setDescription('How many days ahead to get the menu from. Default is 0 days (today)')
+                    .setRequired(true)
                 )
+        ),
 
+        async execute(interaction) {
+            await interaction.reply('hi');
+            console.log(`User ${interaction.user.tag} used command ${interaction}`);
+        },
 }
