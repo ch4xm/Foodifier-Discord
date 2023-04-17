@@ -36,6 +36,20 @@ module.exports = {
                 ))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('list')
-                .setDescription('Get a list of reviews from the specified user or '))
+                .setName('filtername')
+                .setDescription('Get a list of reviews from the specified user')
+                .addUserOption(option => 
+                    option.setName('user')
+                    .setDescription('The user whose reviews you would like to see')
+                    .setRequired(true)
+                ))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('filterfood')
+                .setDescription('Get a list of reviews about the specified food')
+                .addStringOption((option)=> 
+                    option.setName('food')
+                    .setDescription('Food you would like to see reviews about')
+                    .setRequired(true)
+                ))
 }
