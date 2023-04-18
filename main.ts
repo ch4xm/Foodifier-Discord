@@ -4,6 +4,7 @@ import path from 'path'
 import {Client, GatewayIntentBits, Collection, Collector, SlashCommandBuilder, ChatInputCommandInteraction, ClientOptions, AutocompleteInteraction} from 'discord.js'
 
 import dotenv from 'dotenv'
+import { debug } from 'console';
 
 dotenv.config()
 
@@ -43,6 +44,7 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);

@@ -44,11 +44,12 @@ module.exports = {
                     .setRequired(true))
                 .addNumberOption(option =>
                     option.setName('rating')
-                    .setDescription('Optional rating to narrow down which review to delete (in the case of multiple reviews on the same food)')
+                    .setDescription('Optional rating to narrow down which review to delete')
                     .setRequired(false)
                 ))
         .addSubcommandGroup( group => 
                             group.setName("filter")
+                            .setDescription("N/A")
                             .addSubcommand(subcommand =>
                                 subcommand
                                     .setName('filtername')
@@ -72,13 +73,15 @@ module.exports = {
           if(interaction.options.getSubcommand() === 'create'){
               await cookieDB.insert("reviews",{
                 username: interaction.user.username,
-                user_id : interaction.user.id,
-                food_item : interaction.options.getString('food_item'),
+                id : interaction.user.id,
+                food_item : interaction.options.getString('food'),
                 rating : interaction.options.getNumber('rating'),
                 review : interaction.options.getString('review'),
                 upvotes : 0,
-                downvotes : 0
+                downvotes : 0,
               })
+
+              await interaction.reply("hi")
 
               console.log(`User ${interaction.user.tag} used command ${interaction}`);
           }

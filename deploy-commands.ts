@@ -22,7 +22,7 @@ for (const folder of commandFolders) {
 	const commandFiles : string[] = fs.readdirSync(commandsPath).filter((file:string) => file.endsWith('.js'));
 
 	for (const file of commandFiles) {
-		const filePath = path.join(commandsPath, file);
+		const filePath : string = path.join(commandsPath, file);
 		const command = require(filePath);
 		commands.push(command.data.toJSON());
 	}
@@ -30,6 +30,8 @@ for (const folder of commandFolders) {
 
 // Construct and prepare an instance of the REST module
 let rest = new REST({ version: '10' }).setToken(process.env.token!);
+
+rest.on("restDebug", console.log);
 
 // and deploy your commands!
 (async () => {
