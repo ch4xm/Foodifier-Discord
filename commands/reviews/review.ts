@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder} from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
 import { CookieDB } from 'cookie-driver';
 
@@ -28,6 +28,8 @@ module.exports = {
                 .addNumberOption(option =>
                     option.setName('rating')
                     .setDescription('Your numerical rating of the food')
+                    .setMinValue(0)
+                    .setMaxValue(10)
                     .setRequired(true))
                 .addStringOption(option =>
                     option.setName('review')
@@ -52,8 +54,8 @@ module.exports = {
                             .setDescription("N/A")
                             .addSubcommand(subcommand =>
                                 subcommand
-                                    .setName('filtername')
-                                    .setDescription('Get a list of reviews from the specified user')
+                                    .setName('username')
+                                    .setDescription('Get a list of reviews from the specified username')
                                     .addUserOption(option => 
                                         option.setName('user')
                                         .setDescription('The user whose reviews you would like to see')
@@ -61,7 +63,7 @@ module.exports = {
                                     ))
                             .addSubcommand(subcommand =>
                                 subcommand
-                                    .setName('filterfood')
+                                    .setName('food')
                                     .setDescription('Get a list of reviews about the specified food')
                                     .addStringOption((option)=> 
                                         option.setName('food')
@@ -69,6 +71,7 @@ module.exports = {
                                         .setRequired(true)
                            )
                 )),
+
         async execute(interaction : ChatInputCommandInteraction){
           if(interaction.options.getSubcommand() === 'create'){
               await cookieDB.insert("reviews",{
@@ -79,11 +82,13 @@ module.exports = {
                 review : interaction.options.getString('review'),
                 upvotes : 0,
                 downvotes : 0,
-              })
+            })
 
-              await interaction.reply("hi")
-
-              console.log(`User ${interaction.user.tag} used command ${interaction}`);
+            const embed = new EmbedBuilder()
+			    .setColor(0x50C878)
+			    .setDescription('**Review has been added**');
+            await interaction.reply({ embeds: [embed] });
+            console.log(`User ${interaction.user.tag} used command ${interaction}`);
           }
         }
 
