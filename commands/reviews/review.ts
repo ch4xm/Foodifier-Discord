@@ -44,7 +44,7 @@ module.exports = {
                     .setRequired(true))
                 .addNumberOption(option =>
                     option.setName('rating')
-                    .setDescription('Optional rating to narrow down which review to delete')
+                    .setDescription('Optional rating to narrow down which review to delete (in the case of multiple reviews on the same food)')
                     .setRequired(false)
                 ))
         .addSubcommandGroup( group => 
