@@ -12,7 +12,7 @@ const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Late Night'];
 
 //-------------------------------------------------------------------------------------------------
 
-const CAFE_URLS = {
+const CAFE_URLS : Record<string,string> = {
     'Oakes Cafe': '23&locationName=Oakes+Cafe&naFlag=1',
     'Global Village Cafe': '46&locationName=Global+Village+Cafe&naFlag=1',
     'UCen Coffee Bar': '45&locationName=UCen+Coffee+Bar&naFlag=1',
@@ -21,7 +21,7 @@ const CAFE_URLS = {
     'Perk Coffee Bars': '22&locationName=Perk+Coffee+Bars&naFlag=1',
 }
 
-const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --'];
+const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --'];
 // strings corresponding to the dividers, will be used to determine menu validity
 // (eg if cereal is first divider found, then the dh is not open for that meal)
 
@@ -44,7 +44,8 @@ async function get_site_with_cookie(url : string, location_url : string){
         'WebInaCartQtys': '',
         'WebInaCartRecipes': ''
     };
-    
+    console.log(url);
+    console.log(location_url);
     return await axios.get(url, { 
         headers: {
             'Cookie': Object.entries(cookies).map(c => c.join('=')).join('; ')
@@ -57,9 +58,8 @@ async function get_site_with_cookie(url : string, location_url : string){
     });
 }
 
-async function getMenu(college : string, full_url : string) {
+async function getMenu(location_url : string, full_url : string) {
     let food_items  : Record<any,any > = {};
-    let location_url : string = LOCATION_URLS[college];
     let response = await get_site_with_cookie(full_url, location_url);
     const dom = new JSDOM(response);
 
@@ -92,18 +92,23 @@ async function getMenu(college : string, full_url : string) {
   return food_items;
 }
 
-async function getDiningHallMenu(college : string, meal : string, day_offset = 0) {
+async function getDiningHallMenu(dining_hall : string, meal : string, day_offset = 0) {
     const offsetDate = new Date((new Date()).getTime() + day_offset * 60000);
     let date : string = `&dtdate=${offsetDate.getMonth() + 1}%2F${offsetDate.getDate()}%2F${offsetDate.getFullYear().toString().substr(-2)}`;
-	  let full_url : string = BASE_URL + LOCATION_URLS[college] + MEAL_URL + meal + date;
+	let location_url : string = LOCATION_URLS[dining_hall];
+    let full_url : string = BASE_URL + location_url + MEAL_URL + meal + date;
 
-    const food_items = await getMenu(college, full_url);
+    const food_items = await getMenu(location_url, full_url);
     return food_items;
 }
 
-// async function getCafeMenu(cafe) {
-//
-// }
+async function getCafeMenu(cafe: string) {
+    const today = new Date();
+    let date : string = `&dtdate=${today.getMonth() + 1}%2F${today.getDate()}%2F${today.getFullYear().toString().substr(-2)}`;
+    let full_url : string = BASE_URL + CAFE_URLS[cafe] + date
+    const food_items = await getMenu(CAFE_URLS[cafe], full_url);
+    return food_items;
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
