@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, User} from 'discord.js';
 
 import { CookieDB } from 'cookie-driver';
 
@@ -90,6 +90,28 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
             console.log(`User ${interaction.user.tag} used command ${interaction}`);
           }
+        else if(interaction.options.getSubcommandGroup() === 'filter'){
+          if(interaction.options.getSubcommand() === 'username'){
+            let user : User = interaction.options.getUser('user')!;
+            let id : string = user.id;
+
+            let reviews : Record<string,string>[] = await cookieDB.select("reviews", `eq($id,'${id.toString()}')`);
+            
+            let embeds = []
+
+            console.log(reviews)
+
+            for (let i=0;i<reviews.length;i++){
+              embeds.push(new EmbedBuilder()
+                          .setColor(0x50C878)
+                          .setAuthor({name : reviews[i].username})
+                          .setTitle(reviews[i].food_item)
+                          .setDescription(`**Rating: ${reviews[i].rating}/10\nReview: ${reviews[i].review}**`)
+                          )
+            }
+            await interaction.reply({ embeds : embeds})
+          }
+        } 
         }
 
 }
