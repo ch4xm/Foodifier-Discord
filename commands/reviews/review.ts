@@ -89,6 +89,7 @@ module.exports = {
 			    .setDescription('**Review has been added**');
             await interaction.reply({ embeds: [embed] });
             console.log(`User ${interaction.user.tag} used command ${interaction}`);
+
           }
         else if(interaction.options.getSubcommandGroup() === 'filter'){
           if(interaction.options.getSubcommand() === 'username'){
@@ -99,7 +100,7 @@ module.exports = {
             
             let embeds = [];
 
-            for (let i=reviews.length-1;i>=0;i--){
+            for (let i=reviews.length-1;i>=0;i--){ //code highlighting fucking up if I do it the other way
               embeds.push(new EmbedBuilder()
                           .setColor(0x50C878)
                           .setAuthor({name : reviews[i].username})
