@@ -85,10 +85,8 @@ async function getMenu(location_url : string, full_url : string) {
 			}
 		}
   })
-  console.log(food_items);
 
   if (!DIVIDERS.includes(Object.keys(food_items)[0])) {
-    console.log('hihfgosrigik');
 	return null;
   }
   return food_items;
@@ -177,7 +175,7 @@ module.exports = {
 
             for (let food of Object.keys(food_items)) {
                 if (food.includes('-- ')) { // if the food has a double dash which signifies its a divider then skip
-                    if (!DIVIDERS.includes(food)) {
+                    if (food === ('-- Cereal --')){
                         break;
                     }
                     msg += food.replace('-- ', '**')
