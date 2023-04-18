@@ -137,7 +137,7 @@ module.exports = {
                     option.setName('day_offset')
                     .setDescription('How many days ahead to get the menu from. Default is 0 days (today)')
                     .addChoices(...[...Array(19).keys()].map(num => ({name: String(num), value: String(num)})))
-                    .setRequired(true)
+                    .setRequired(false)
                 )
         ),
 
