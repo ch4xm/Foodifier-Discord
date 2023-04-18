@@ -97,11 +97,29 @@ module.exports = {
 
             let reviews : Record<string,string>[] = await cookieDB.select("reviews", `eq($id,'${id.toString()}')`);
             
-            let embeds = []
+            let embeds = [];
 
-            console.log(reviews)
+            for (let i=reviews.length-1;i>=0;i--){
+              embeds.push(new EmbedBuilder()
+                          .setColor(0x50C878)
+                          .setAuthor({name : reviews[i].username})
+                          .setTitle(reviews[i].food_item)
+                          .setDescription(`**Rating: ${reviews[i].rating}/10\nReview: ${reviews[i].review}**`)
+                          );
+            }
+            await interaction.reply({ embeds : embeds});
+          }
+          else{ 
 
-            for (let i=0;i<reviews.length;i++){
+            let food_item : string = interaction.options.getString('food')!;
+            let reviews : Record<string,string>[] = await cookieDB.select("reviews", `eq($food_item, '${food_item}')`) 
+
+            console.log(food_item);
+            console.log(reviews);
+
+            let embeds = [];
+            for (let i=reviews.length-1;i>=0;i--){
+              console.log(reviews[i])
               embeds.push(new EmbedBuilder()
                           .setColor(0x50C878)
                           .setAuthor({name : reviews[i].username})
@@ -109,9 +127,10 @@ module.exports = {
                           .setDescription(`**Rating: ${reviews[i].rating}/10\nReview: ${reviews[i].review}**`)
                           )
             }
-            await interaction.reply({ embeds : embeds})
+            await interaction.reply({ embeds : embeds});
+
+          }
+
           }
         } 
-        }
-
 }
