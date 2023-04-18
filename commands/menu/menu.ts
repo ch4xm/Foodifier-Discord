@@ -21,7 +21,7 @@ const CAFE_URLS : Record<string,string> = {
     'Perk Coffee Bars': '22&locationName=Perk+Coffee+Bars&naFlag=1',
 }
 
-const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --'];
+const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --', '-- Daily --'];
 // strings corresponding to the dividers, will be used to determine menu validity
 // (eg if cereal is first divider found, then the dh is not open for that meal)
 
@@ -85,8 +85,10 @@ async function getMenu(location_url : string, full_url : string) {
 			}
 		}
   })
+  console.log(food_items);
 
   if (!DIVIDERS.includes(Object.keys(food_items)[0])) {
+    console.log('hihfgosrigik');
 	return null;
   }
   return food_items;
