@@ -29,9 +29,8 @@ const EMOJIS = { 'veggie': '🥦', 'vegan': '🌱', 'halal': '🍖', 'eggs': '�
 
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
-import JSDOM from 'jsdom';
+const JSDOM = require('jsdom').JSDOM;
 
-JSDOM.JSDOM;
 import fs from 'fs';
 import axios from 'axios';
 
@@ -131,10 +130,12 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('meal')
                     .setDescription('Which meal (note that not all meals will be available for every location')
+                    .addChoices(...MEALS.map(name => ({name, value: name})))
                     .setRequired(true))
                 .addStringOption(option =>
                     option.setName('day_offset')
                     .setDescription('How many days ahead to get the menu from. Default is 0 days (today)')
+                    .addChoices(...[...Array(19).keys()].map(num => ({name: String(num), value: String(num)})))
                     .setRequired(true)
                 )
         ),
