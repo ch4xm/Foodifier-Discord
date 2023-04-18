@@ -46,3 +46,4 @@ out/*.js
 .env1
 node_modules
 out
+menu_items.txt
