@@ -21,11 +21,12 @@ const CAFE_URLS = {
     'Perk Coffee Bars': '22&locationName=Perk+Coffee+Bars&naFlag=1',
 }
 
-const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --'];
+const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --'];
 // strings corresponding to the dividers, will be used to determine menu validity
 // (eg if cereal is first divider found, then the dh is not open for that meal)
 
 const EMOJIS = { 'veggie': '🥦', 'vegan': '🌱', 'halal': '🍖', 'eggs': '🥚', 'beef': '🐮', 'milk': '🥛', 'fish': '🐟', 'alcohol': '🍷', 'gluten': '🍞', 'soy': '🫘', 'treenut': '🥥', 'sesame': '', 'pork': '🐷', 'shellfish': '🦐', 'nuts': '🥜' };
+type restriction = keyof typeof EMOJIS
 
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
@@ -85,7 +86,7 @@ async function getMenu(college : string, full_url : string) {
 		}
   })
 
-  if (Object.keys(food_items)[0] == '-- Cereal --') {
+  if (!DIVIDERS.includes(Object.keys(food_items)[0])) {
 	return null;
   }
   return food_items;
@@ -111,7 +112,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('cafe')
-                .setDescription('Get the menu of one of the UCSC cafes')
+                .setDescription('Get the menu of one of the UCSC caffes')
                 .addStringOption(option =>
                     option.setName('location')
                     .setDescription('Which cafe to get the menu of')
@@ -141,8 +142,56 @@ module.exports = {
         ),
 
         async execute(interaction : ChatInputCommandInteraction) {
-            await getDiningHallMenu('Cowell/Stevenson', 'Lunch')
-            await interaction.reply('hi');
+            let foods: string[] = [];
+            try {
+                foods = fs.readFileSync('menu_items.txt').toString().trim().split("\n"); 
+            } catch(error){
+                console.log('Error writing to file: ' + error);
+            }
+
+            const location = interaction.options.getString("location")!;
+		    const meal = interaction.options.getString("meal")!;
+            let msg = '';
+		    let food_items : Record<string,restriction[]> | null= await getDiningHallMenu(location, meal);
+
+            if (food_items == null) {
+                const embed = new EmbedBuilder()
+                .setColor(0xEE4B2B)
+                .setDescription('**Specified meal is not available!**');
+                await interaction.reply({ embeds: [embed] });
+                return;
+            }
+
+            for (let food of Object.keys(food_items)) {
+                if (food.includes('-- ')) { // if the food has a double dash which signifies its a divider then skip
+                    if (!DIVIDERS.includes(food)) {
+                        break;
+                    }
+                    msg += food.replace('-- ', '**')
+                    .replace(' --', '**') + '\n';
+                } else {
+                    msg += food; 
+                    if (!foods.includes(food)) {
+                        console.log(food);
+                        foods.push(food);
+                    };	
+                    for (let diet_restriction of food_items[food]) {
+                        msg += EMOJIS[diet_restriction] + '  ';
+                    }
+                    msg += '\n';
+                }        
+            }
+            const embed = new EmbedBuilder()
+			.setColor(0x50C878)
+			.setDescription(msg);
+            await interaction.reply({ embeds: [embed] });
+
+            fs.writeFile('menu_items.txt', foods.join('\n').trim() + '\n', function(err) {
+                if (err) throw err;
+                foods = [];
+                //console.log(`Appended foods: \n${foods.join(', ')}\nto the text file.`);
+            });
+
             console.log(`User ${interaction.user.tag} used command ${interaction}`);
         },
 }
