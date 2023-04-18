@@ -154,10 +154,16 @@ module.exports = {
                 console.log('Error writing to file: ' + error);
             }
 
-            const location = interaction.options.getString("location")!;
-		    const meal = interaction.options.getString("meal")!;
             let msg = '';
-		    let food_items : Record<string,restriction[]> | null= await getDiningHallMenu(location, meal);
+            const location = interaction.options.getString("location")!;
+            let food_items : Record<string,restriction[]> | null = null;
+            if(interaction.options.getSubcommand() === 'dining_hall') {
+                const meal = interaction.options.getString("meal")!;
+                food_items = await getDiningHallMenu(location, meal);
+
+            } else if (interaction.options.getSubcommand() === 'cafe') {
+                food_items = await getCafeMenu(location);
+            }
 
             if (food_items == null) {
                 const embed = new EmbedBuilder()
