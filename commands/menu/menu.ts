@@ -28,6 +28,11 @@ const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees -
 const EMOJIS = { 'veggie': '🥦', 'vegan': '🌱', 'halal': '🍖', 'eggs': '🥚', 'beef': '🐮', 'milk': '🥛', 'fish': '🐟', 'alcohol': '🍷', 'gluten': '🍞', 'soy': '🫘', 'treenut': '🥥', 'sesame': '', 'pork': '🐷', 'shellfish': '🦐', 'nuts': '🥜' };
 type restriction = keyof typeof EMOJIS
 
+interface FoodItem {
+    restrictions: restriction[],
+    price?: string
+}
+
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
 const JSDOM = require('jsdom').JSDOM;
@@ -59,31 +64,32 @@ async function get_site_with_cookie(url : string, location_url : string){
 }
 
 async function getMenu(location_url : string, full_url : string) {
-    let food_items  : Record<any,any > = {};
+    let food_items : Record<string, FoodItem | null> = {};
     let response = await get_site_with_cookie(full_url, location_url);
     const dom = new JSDOM(response);
 
-    dom.window.document.querySelectorAll('tr').forEach((tr : any) => {
+    dom.window.document.querySelectorAll('div > table > tbody > tr').forEach((tr : any) => {
 		if (tr.querySelector('div.longmenucolmenucat')) {
 			// If current tr has a divider
 			//console.log(tr.querySelector('div.longmenucolmenucat'));
 			food_items[tr.querySelector('div.longmenucolmenucat').textContent] = null;
 			return; // go to next tr
-			}
-			if (tr.querySelector('div.longmenucoldispname')) {
-			// If current tr has a food item
-			let food = tr.querySelector('div.longmenucoldispname').textContent;
-			food_items[food] = []; // add food to dictionary
-			for (let img of tr.querySelectorAll('img')) {
-				// Iterate through dietary restrictions and get img src names
-				let diets = img.getAttribute('src').split('/')[1].split('.')[0];
-        if (food_items[food] == null) {
-          continue;
-        } else{
-				  food_items[food].push(diets);
-        }
-			}
 		}
+			if (tr.querySelector('div.longmenucoldispname')) {
+                let price = tr.querySelector('div.longmenucolprice')?.textContent;
+                console.log('price', price);
+                // If current tr has a food item
+                let food = tr.querySelector('div.longmenucoldispname').textContent;
+                food_items[food] = {
+                    restrictions: [],
+                    price
+                }; // add food to dictionary
+                for (let img of tr.querySelectorAll('img')) {
+                    // Iterate through dietary restrictions and get img src names
+                    let diets = img.getAttribute('src').split('/')[1].split('.')[0];
+                    food_items[food]?.restrictions.push(diets);
+                }
+		    }
   })
 
   if (!DIVIDERS.includes(Object.keys(food_items)[0])) {
@@ -156,7 +162,7 @@ module.exports = {
 
             let msg = '';
             const location = interaction.options.getString("location")!;
-            let food_items : Record<string,restriction[]> | null = null;
+            let food_items : Record<string, FoodItem | null> | null = null;
             if(interaction.options.getSubcommand() === 'dining_hall') {
                 const meal = interaction.options.getString("meal")!;
                 food_items = await getDiningHallMenu(location, meal);
@@ -193,7 +199,7 @@ module.exports = {
                         console.log(food);
                         foods.push(food);
                     };	
-                    for (let diet_restriction of food_items[food]) {
+                    for (let diet_restriction of food_items[food]?.restrictions || []) {
                         //msg += ' ' +   EMOJIS[diet_restriction] + ' ';
                     }
                     msg += '\n';
