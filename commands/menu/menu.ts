@@ -195,13 +195,13 @@ module.exports = {
                     //console.log(msg);
                 } else {
                     
-                    let food_str = food + '\t' + food_items[food]?.price;
+                    let food_str = food + ' \t-\t ' + food_items[food]?.price;
                     if ((food_str.length + msg.length) > 1024) {
                         embed.addFields({name: result, value: msg, inline: false})
                         msg = ''
-                        result = '   ';
+                        result = '　';
                     }
-                    msg += food + '\t' + food_items[food]?.price; 
+                    msg += food_str; 
                     //console.log(food, food_items[food]?.price);
                     if (!foods.includes(food)) {
                         console.log(food);
