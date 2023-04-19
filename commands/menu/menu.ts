@@ -21,7 +21,7 @@ const CAFE_URLS : Record<string,string> = {
     'Perk Coffee Bars': '22&locationName=Perk+Coffee+Bars&naFlag=1',
 }
 
-const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --', '-- Daily --'];
+const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --', '-- Daily --', '-- UCEN COMM --', '-- Bagels --', '-- Commissary --'];
 // strings corresponding to the dividers, will be used to determine menu validity
 // (eg if cereal is first divider found, then the dh is not open for that meal)
 
@@ -77,7 +77,7 @@ async function getMenu(location_url : string, full_url : string) {
 		}
 			if (tr.querySelector('div.longmenucoldispname')) {
                 let price = tr.querySelector('div.longmenucolprice')?.textContent;
-                console.log('price', price);
+                //console.log('price', price);
                 // If current tr has a food item
                 let food = tr.querySelector('div.longmenucoldispname').textContent;
                 food_items[food] = {
@@ -111,7 +111,7 @@ async function getDiningHallMenu(dining_hall : string, meal : string, day_offset
 async function getCafeMenu(cafe: string) {
     const today = new Date();
     let date : string = `&dtdate=${today.getMonth() + 1}%2F${today.getDate()}%2F${today.getFullYear().toString().substr(-2)}`;
-    let full_url : string = BASE_URL + CAFE_URLS[cafe] + date
+    let full_url : string = BASE_URL + CAFE_URLS[cafe] //+ date
     const food_items = await getMenu(CAFE_URLS[cafe], full_url);
     return food_items;
 }
@@ -194,6 +194,13 @@ module.exports = {
                     msg = '';
                     //console.log(msg);
                 } else {
+                    
+                    let food_str = food + '\t' + food_items[food]?.price;
+                    if ((food_str.length + msg.length) > 1024) {
+                        embed.addFields({name: result, value: msg, inline: false})
+                        msg = ''
+                        result = '   ';
+                    }
                     msg += food + '\t' + food_items[food]?.price; 
                     //console.log(food, food_items[food]?.price);
                     if (!foods.includes(food)) {
