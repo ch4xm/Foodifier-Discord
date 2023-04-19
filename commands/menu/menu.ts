@@ -178,8 +178,10 @@ module.exports = {
                     if (food === ('-- Cereal --')){
                         break;
                     }
-                    msg += food.replace('-- ', '**')
-                    .replace(' --', '**') + '\n';
+
+                    const result = food.split('--')[1].trim();
+                    msg += '**'+result+'**\n';
+                    //console.log(msg);
                 } else {
                     msg += food; 
                     if (!foods.includes(food)) {
@@ -187,11 +189,12 @@ module.exports = {
                         foods.push(food);
                     };	
                     for (let diet_restriction of food_items[food]) {
-                        msg += EMOJIS[diet_restriction] + '  ';
+                        msg += ' ' +   EMOJIS[diet_restriction] + ' ';
                     }
                     msg += '\n';
                 }        
             }
+            console.log(msg.length);
             const embed = new EmbedBuilder()
 			.setColor(0x50C878)
 			.setDescription(msg);
