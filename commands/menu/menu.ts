@@ -190,12 +190,16 @@ module.exports = {
                     if (result.length != 0) {
                         embed.addFields({name: result, value: msg, inline: false})
                     }
+                    
                     result = '**'+food.split('--')[1].trim()+'**';
                     msg = '';
-                    //console.log(msg);
+                    //console.log(result, food);
                 } else {
                     
-                    let food_str = food + ' \t-\t ' + food_items[food]?.price;
+                    let food_str = food 
+                    if (interaction.options.getSubcommand() === 'cafe') {
+                        food_str += ' \t-\t ' + food_items[food]?.price;
+                    }
                     if ((food_str.length + msg.length) > 1024) {
                         embed.addFields({name: result, value: msg, inline: false})
                         msg = ''
