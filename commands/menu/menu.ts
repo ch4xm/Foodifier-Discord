@@ -164,23 +164,28 @@ module.exports = {
             } else if (interaction.options.getSubcommand() === 'cafe') {
                 food_items = await getCafeMenu(location);
             }
+            let embed = new EmbedBuilder().setTitle(`**Menu for ${location}**`);
 
             if (food_items == null) {
-                const embed = new EmbedBuilder()
+                embed
                 .setColor(0xEE4B2B)
                 .setDescription('**Specified meal is not available!**');
                 await interaction.reply({ embeds: [embed] });
                 return;
             }
-
+            let result : string = '';
+            console.log(food_items);
             for (let food of Object.keys(food_items)) {
                 if (food.includes('-- ')) { // if the food has a double dash which signifies its a divider then skip
                     if (food === ('-- Cereal --')){
                         break;
                     }
 
-                    const result = food.split('--')[1].trim();
-                    msg += '**'+result+'**\n';
+                    if (result.length != 0) {
+                        embed.addFields({name: result, value: msg, inline: true})
+                    }
+                    result = '**'+food.split('--')[1].trim()+'**';
+                    msg = '';
                     //console.log(msg);
                 } else {
                     msg += food; 
@@ -189,15 +194,16 @@ module.exports = {
                         foods.push(food);
                     };	
                     for (let diet_restriction of food_items[food]) {
-                        msg += ' ' +   EMOJIS[diet_restriction] + ' ';
+                        //msg += ' ' +   EMOJIS[diet_restriction] + ' ';
                     }
                     msg += '\n';
                 }        
             }
-            console.log(msg.length);
-            const embed = new EmbedBuilder()
+            
+            embed
 			.setColor(0x50C878)
-			.setDescription(msg);
+            .addFields({name: result, value: msg, inline: true});
+			//.setDescription(msg);
             await interaction.reply({ embeds: [embed] });
 
             fs.writeFile('menu_items.txt', foods.join('\n').trim() + '\n', function(err) {
