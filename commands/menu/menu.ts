@@ -180,7 +180,7 @@ module.exports = {
                 return;
             }
             let result : string = '';
-            console.log(food_items);
+            //console.log(food_items);
             for (let food of Object.keys(food_items)) {
                 if (food.includes('-- ')) { // if the food has a double dash which signifies its a divider then skip
                     if (food === ('-- Cereal --')){
@@ -188,13 +188,14 @@ module.exports = {
                     }
 
                     if (result.length != 0) {
-                        embed.addFields({name: result, value: msg, inline: true})
+                        embed.addFields({name: result, value: msg, inline: false})
                     }
                     result = '**'+food.split('--')[1].trim()+'**';
                     msg = '';
                     //console.log(msg);
                 } else {
-                    msg += food; 
+                    msg += food + '\t' + food_items[food]?.price; 
+                    //console.log(food, food_items[food]?.price);
                     if (!foods.includes(food)) {
                         console.log(food);
                         foods.push(food);
