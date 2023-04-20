@@ -41,6 +41,7 @@ typings/
 lib/*.js
 test/*.js
 out/*.js
+out/**/*.js
 *.map
 
 .env1
