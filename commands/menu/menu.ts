@@ -21,12 +21,17 @@ const CAFE_URLS : Record<string,string> = {
     'Perk Coffee Bars': '22&locationName=Perk+Coffee+Bars&naFlag=1',
 }
 
-const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --', '-- Daily --'];
+const DIVIDERS = ['-- Soups --', '-- Breakfast --', '-- Grill --', '-- Entrees --', '-- Pizza --', '-- Clean Plate --', '-- DH Baked --', '-- Bakery --', '-- Open Bars --', '-- All Day --', '-- Miscellaneous --', '-- Grab & Go --', '-- Smoothies --', '-- Coffee & Tea Now City of Santa Cruz Cup Fee of $.025 BYO and save up to $0.50 when ordering a togo drink --', '-- Daily --', '-- UCEN COMM --', '-- Bagels --', '-- Commissary --'];
 // strings corresponding to the dividers, will be used to determine menu validity
 // (eg if cereal is first divider found, then the dh is not open for that meal)
 
 const EMOJIS = { 'veggie': '🥦', 'vegan': '🌱', 'halal': '🍖', 'eggs': '🥚', 'beef': '🐮', 'milk': '🥛', 'fish': '🐟', 'alcohol': '🍷', 'gluten': '🍞', 'soy': '🫘', 'treenut': '🥥', 'sesame': '', 'pork': '🐷', 'shellfish': '🦐', 'nuts': '🥜' };
 type restriction = keyof typeof EMOJIS
+
+interface FoodItem {
+    restrictions: restriction[],
+    price?: string
+}
 
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 
@@ -59,31 +64,32 @@ async function get_site_with_cookie(url : string, location_url : string){
 }
 
 async function getMenu(location_url : string, full_url : string) {
-    let food_items  : Record<any,any > = {};
+    let food_items : Record<string, FoodItem | null> = {};
     let response = await get_site_with_cookie(full_url, location_url);
     const dom = new JSDOM(response);
 
-    dom.window.document.querySelectorAll('tr').forEach((tr : any) => {
+    dom.window.document.querySelectorAll('div > table > tbody > tr').forEach((tr : any) => {
 		if (tr.querySelector('div.longmenucolmenucat')) {
 			// If current tr has a divider
 			//console.log(tr.querySelector('div.longmenucolmenucat'));
 			food_items[tr.querySelector('div.longmenucolmenucat').textContent] = null;
 			return; // go to next tr
-			}
-			if (tr.querySelector('div.longmenucoldispname')) {
-			// If current tr has a food item
-			let food = tr.querySelector('div.longmenucoldispname').textContent;
-			food_items[food] = []; // add food to dictionary
-			for (let img of tr.querySelectorAll('img')) {
-				// Iterate through dietary restrictions and get img src names
-				let diets = img.getAttribute('src').split('/')[1].split('.')[0];
-        if (food_items[food] == null) {
-          continue;
-        } else{
-				  food_items[food].push(diets);
-        }
-			}
 		}
+			if (tr.querySelector('div.longmenucoldispname')) {
+                let price = tr.querySelector('div.longmenucolprice')?.textContent;
+                //console.log('price', price);
+                // If current tr has a food item
+                let food = tr.querySelector('div.longmenucoldispname').textContent;
+                food_items[food] = {
+                    restrictions: [],
+                    price
+                }; // add food to dictionary
+                for (let img of tr.querySelectorAll('img')) {
+                    // Iterate through dietary restrictions and get img src names
+                    let diets = img.getAttribute('src').split('/')[1].split('.')[0];
+                    food_items[food]?.restrictions.push(diets);
+                }
+		    }
   })
 
   if (!DIVIDERS.includes(Object.keys(food_items)[0])) {
@@ -105,7 +111,7 @@ async function getDiningHallMenu(dining_hall : string, meal : string, day_offset
 async function getCafeMenu(cafe: string) {
     const today = new Date();
     let date : string = `&dtdate=${today.getMonth() + 1}%2F${today.getDate()}%2F${today.getFullYear().toString().substr(-2)}`;
-    let full_url : string = BASE_URL + CAFE_URLS[cafe] + date
+    let full_url : string = BASE_URL + CAFE_URLS[cafe] //+ date
     const food_items = await getMenu(CAFE_URLS[cafe], full_url);
     return food_items;
 }
@@ -156,7 +162,7 @@ module.exports = {
 
             let msg = '';
             const location = interaction.options.getString("location")!;
-            let food_items : Record<string,restriction[]> | null = null;
+            let food_items : Record<string, FoodItem | null> | null = null;
             if(interaction.options.getSubcommand() === 'dining_hall') {
                 const meal = interaction.options.getString("meal")!;
                 food_items = await getDiningHallMenu(location, meal);
@@ -164,37 +170,58 @@ module.exports = {
             } else if (interaction.options.getSubcommand() === 'cafe') {
                 food_items = await getCafeMenu(location);
             }
+            let embed = new EmbedBuilder().setTitle(`**Menu for ${location}**`);
 
             if (food_items == null) {
-                const embed = new EmbedBuilder()
+                embed
                 .setColor(0xEE4B2B)
                 .setDescription('**Specified meal is not available!**');
                 await interaction.reply({ embeds: [embed] });
                 return;
             }
-
+            let result : string = '';
+            //console.log(food_items);
             for (let food of Object.keys(food_items)) {
                 if (food.includes('-- ')) { // if the food has a double dash which signifies its a divider then skip
                     if (food === ('-- Cereal --')){
                         break;
                     }
-                    msg += food.replace('-- ', '**')
-                    .replace(' --', '**') + '\n';
+
+                    if (result.length != 0) {
+                        embed.addFields({name: result, value: msg, inline: false})
+                    }
+                    
+                    result = '**'+food.split('--')[1].trim()+'**';
+                    msg = '';
+                    //console.log(result, food);
                 } else {
-                    msg += food; 
+                    
+                    let food_str = food 
+                    if (interaction.options.getSubcommand() === 'cafe') {
+                        food_str += ' \t-\t ' + food_items[food]?.price;
+                    }
+                    if ((food_str.length + msg.length) > 1024) {
+                        embed.addFields({name: result, value: msg, inline: false})
+                        msg = ''
+                        result = '　';
+                    }
+                    msg += food_str; 
+                    //console.log(food, food_items[food]?.price);
                     if (!foods.includes(food)) {
                         console.log(food);
                         foods.push(food);
                     };	
-                    for (let diet_restriction of food_items[food]) {
-                        msg += EMOJIS[diet_restriction] + '  ';
+                    for (let diet_restriction of food_items[food]?.restrictions || []) {
+                        //msg += ' ' +   EMOJIS[diet_restriction] + ' ';
                     }
                     msg += '\n';
                 }        
             }
-            const embed = new EmbedBuilder()
+            
+            embed
 			.setColor(0x50C878)
-			.setDescription(msg);
+            .addFields({name: result, value: msg, inline: true});
+			//.setDescription(msg);
             await interaction.reply({ embeds: [embed] });
 
             fs.writeFile('menu_items.txt', foods.join('\n').trim() + '\n', function(err) {
