@@ -1,9 +1,9 @@
 import fs from 'fs';
-import path from 'path'
+import path from 'path';
 
-import {Client, GatewayIntentBits, Collection, Collector, SlashCommandBuilder, ChatInputCommandInteraction, ClientOptions, AutocompleteInteraction} from 'discord.js'
+import {Client, GatewayIntentBits, Collection, Collector, SlashCommandBuilder, ChatInputCommandInteraction, ClientOptions, AutocompleteInteraction} from 'discord.js';
 
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import { debug } from 'console';
 
 dotenv.config()
