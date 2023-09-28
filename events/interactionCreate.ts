@@ -1,5 +1,5 @@
 import { Interaction , Events} from "discord.js";
-import { MClient } from "../main";
+import { MClient } from "../main.js";
 
 
 module.exports = {

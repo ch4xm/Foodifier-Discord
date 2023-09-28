@@ -1,12 +1,13 @@
-const BASE_URL = "https://nutrition.sa.ucsc.edu/longmenu.aspx?sName=UC+Santa+Cruz+Dining&locationNum=";
+const BASE_URL = "https://nutrition.sa.ucsc.edu/longmenu.aspx?locationNum=";
 
 const LOCATION_URLS : Record<string,string> = {
-    'Cowell/Stevenson': "05&locationName=Cowell%2fStevenson+Dining+Hall&naFlag=1",
-	'Crown/Merrill': "20&locationName=Crown%2fMerrill+Dining+Hall&naFlag=1",
-	'Nine/Ten': "40&locationName=College+Nine%2fJohn+R.+Lewis+Dining+Hall&naFlag=1",
-	'Porter/Kresge': "25&locationName=Porter%2fKresge+Dining+Hall&naFlag=1",
+    'Cowell/Stevenson': "05",
+	'Crown/Merrill': "20",
+	'Nine/Ten': "40",
+	'Porter/Kresge': "25",
+    'Rachel Carson/Oakes': "30",
 }
-const MEAL_URL = "&WeeksMenus=UCSC+-+This+Week%27s+Menus&mealName=";
+const MEAL_URL = "&mealName=";
 
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Late Night'];
 

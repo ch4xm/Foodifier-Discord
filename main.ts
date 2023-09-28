@@ -8,6 +8,8 @@ import { debug } from 'console';
 
 dotenv.config()
 
+console.log("[INFO] Bot is starting up...");
+
 interface Command {
   data: SlashCommandBuilder
   execute( interaction: ChatInputCommandInteraction): void
@@ -45,6 +47,7 @@ for (const file of eventFiles) {
 	}
 }
 
+console.log("[INFO] Event files finished parsing.");
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -64,5 +67,7 @@ for (const folder of commandFolders) {
 		}
 	}
 }
+
+console.log("[INFO] Command files finished parsing.");
 
 client.login(process.env.token);
